@@ -83,14 +83,13 @@
         <p>Click on the screen to capture keyboard input</p>
     </div>
 
-    <!-- Load v86 from local file -->
-    <script src="v86.js"></script>
+    <!-- Load v86 from CDN with crossorigin -->
+    <script src="https://unpkg.com/v86@latest/build/libv86.js" crossorigin="anonymous"></script>
     
     <script>
         var emulator;
         var loadingDiv = document.getElementById("loading");
         
-        // Wait a moment to ensure v86.js is fully loaded
         function startEmulator() {
             if (typeof V86Starter === 'undefined') {
                 console.log("V86Starter not ready yet, waiting...");
@@ -101,14 +100,14 @@
             console.log("Starting V86...");
             
             emulator = new V86Starter({
-                wasm_path: "v86.wasm",
+                wasm_path: "https://unpkg.com/v86@latest/build/v86.wasm",
                 screen_container: document.getElementById("screen_container"),
                 
                 bios: {
-                    url: "bios/seabios.bin",
+                    url: "https://unpkg.com/v86@latest/bios/seabios.bin",
                 },
                 vga_bios: {
-                    url: "bios/vgabios.bin",
+                    url: "https://unpkg.com/v86@latest/bios/vgabios.bin",
                 },
                 
                 cdrom: {
@@ -126,7 +125,6 @@
             }, 5000);
         }
         
-        // Start when page is ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', startEmulator);
         } else {
