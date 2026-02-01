@@ -30,10 +30,6 @@
             margin: 20px 0;
             box-shadow: 0 0 20px #0f0;
         }
-        canvas {
-            image-rendering: crisp-edges;
-            image-rendering: pixelated;
-        }
         #controls {
             color: #0f0;
             margin: 10px;
@@ -61,75 +57,66 @@
 </head>
 <body>
     <h1>✝ TempleOS Web Emulator ✝</h1>
-    
+
     <div id="info">
         <p>Running TempleOS in your browser</p>
-        <p style="color: #f90; font-size: 12px;">Initial load may take 1-2 minutes</p>
+        <p style="color:#f90;font-size:12px;">Initial load may take 1–2 minutes</p>
     </div>
 
-    <div id="loading">⟳ Loading TempleOS...</div>
-    
-    <div id="screen_container">
-        <canvas id="screen"></canvas>
-    </div>
-    
+    <div id="loading">⟳ Loading TempleOS…</div>
+
+    <!-- IMPORTANT: leave this DIV empty -->
+    <div id="screen_container"></div>
+
     <div id="controls">
-        <button onclick="if(emulator)emulator.restart()">⟳ Restart</button>
-        <button onclick="if(emulator)emulator.stop()">⏹ Stop</button>
-        <button onclick="if(emulator)emulator.run()">▶ Run</button>
+        <button onclick="emulator && emulator.restart()">⟳ Restart</button>
+        <button onclick="emulator && emulator.stop()">⏹ Stop</button>
+        <button onclick="emulator && emulator.run()">▶ Run</button>
     </div>
 
-    <div id="info" style="margin-top: 20px; font-size: 12px;">
-        <p>Click on the screen to capture keyboard input</p>
+    <div id="info" style="font-size:12px;">
+        <p>Click inside the screen to capture keyboard input</p>
     </div>
 
-    <!-- Load v86 from CDN -->
+    <!-- v86 -->
     <script src="https://unpkg.com/v86@latest/build/libv86.js"></script>
-    
+
     <script>
-        var emulator;
-        var loadingDiv = document.getElementById("loading");
-        
+        let emulator;
+        const loadingDiv = document.getElementById("loading");
+
         function startEmulator() {
-            if (typeof V86Starter === 'undefined') {
-                console.log("V86Starter not ready yet, waiting...");
+            if (typeof V86Starter === "undefined") {
                 setTimeout(startEmulator, 100);
                 return;
             }
-            
-            console.log("Starting V86...");
-            
+
             emulator = new V86Starter({
                 wasm_path: "https://unpkg.com/v86@latest/build/v86.wasm",
                 screen_container: document.getElementById("screen_container"),
-                
+
                 bios: {
                     url: "https://unpkg.com/v86@latest/bios/seabios.bin",
                 },
                 vga_bios: {
                     url: "https://unpkg.com/v86@latest/bios/vgabios.bin",
                 },
-                
+
                 cdrom: {
-                    url: "https://archive.org/cors/TempleOS_ISO_Archive/TempleOSCDV5.03.ISO",
+                    url: "https://archive.org/download/TempleOS_ISO_Archive/TempleOSCDV5.03.ISO",
                 },
-                
+
                 memory_size: 256 * 1024 * 1024,
                 vga_memory_size: 8 * 1024 * 1024,
-                boot_order: 0x123,
                 autostart: true,
             });
 
-            setTimeout(function() {
+            setTimeout(() => {
                 loadingDiv.style.display = "none";
-            }, 5000);
+            }, 4000);
         }
-        
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', startEmulator);
-        } else {
-            startEmulator();
-        }
+
+        document.addEventListener("DOMContentLoaded", startEmulator);
     </script>
 </body>
 </html>
