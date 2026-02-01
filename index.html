@@ -1,81 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>v86 Emulator</title>
-<style>
-body {
-    background:#000;
-    color:#0f0;
-    font-family: monospace;
-    text-align:center;
-}
-#screen_container {
-    border:2px solid #0f0;
-    margin-top:20px;
-    display:inline-block;
-}
-button {
-    margin:5px;
-    padding:10px;
-    font-family:monospace;
-}
-</style>
+    <meta charset="utf-8">
+    <title>TempleOS in Browser</title>
+    <style>
+        /* RESET - Remove default spacing */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* BODY STYLING - Black background with green text theme */
+        body {
+            background: #000;  /* Pure black background */
+            font-family: monospace;  /* Terminal-style font */
+            display: flex;  /* Use flexbox layout */
+            flex-direction: column;  /* Stack items vertically */
+            align-items: center;  /* Center horizontally */
+            justify-content: center;  /* Center vertically */
+            min-height: 100vh;  /* Full viewport height */
+            padding: 20px;  /* Breathing room on all sides */
+        }
+        
+        /* TITLE STYLING - Green glowing header */
+        h1 {
+            color: #0f0;  /* Bright green (#0f0 = #00ff00) */
+            text-shadow: 0 0 10px #0f0;  /* Glow effect: blur 10px */
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;  /* 2 times normal size */
+        }
+        
+        /* INFO TEXT - Informational paragraphs */
+        .info {
+            color: #0f0;
+            text-align: center;
+            max-width: 800px;  /* Don't get too wide */
+            margin: 10px 0;
+            line-height: 1.6;  /* Spacing between lines */
+        }
+        
+        /* IFRAME CONTAINER - Holds the embedded v86 emulator */
+        .emulator-container {
+            border: 3px solid #0f0;  /* Green border, 3px thick */
+            box-shadow: 0 0 20px #0f0;  /* Glowing border effect */
+            background: #000;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 1024px;  /* Don't exceed this width */
+            height: 768px;  /* Fixed height */
+        }
+        
+        /* IFRAME ITSELF - The embedded page */
+        iframe {
+            width: 100%;  /* Fill container width */
+            height: 100%;  /* Fill container height */
+            border: none;  /* No default iframe border */
+            display: block;  /* Remove inline spacing */
+        }
+        
+        /* FOOTER TEXT - Bottom instructions */
+        .footer {
+            color: #0f0;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;  /* Slightly smaller */
+            opacity: 0.8;  /* Slightly faded */
+        }
+    </style>
 </head>
 <body>
+    <!-- MAIN TITLE -->
+    <h1>✝ TempleOS Web Emulator ✝</h1>
+    
+    <!-- DESCRIPTION TEXT -->
+    <div class="info">
+        <p>Running TempleOS directly in your browser</p>
+        <p style="color: #ff0; font-size: 0.9em;">
+            Initial load may take 1-2 minutes while downloading the operating system
+        </p>
+    </div>
 
-<h2>v86 Web Emulator</h2>
-<div id="loading">Loading…</div>
-
-<div id="screen_container"></div>
-
-<div>
-    <button onclick="emulator && emulator.restart()">Restart</button>
-    <button onclick="emulator && emulator.stop()">Stop</button>
-    <button onclick="emulator && emulator.run()">Run</button>
-</div>
-
-<!-- Official npm CDN build -->
-<script src="https://unpkg.com/v86/build/libv86.js"></script>
-
-<script>
-let emulator;
-
-function start() {
-    if (typeof V86Starter === "undefined") {
-        setTimeout(start, 100);
-        return;
-    }
-
-    emulator = new V86Starter({
-        wasm_path: "https://unpkg.com/v86/build/v86.wasm",
-
-        screen_container: document.getElementById("screen_container"),
-
-        bios: {
-            url: "https://copy.sh/v86/bios/seabios.bin",
-        },
-        vga_bios: {
-            url: "https://copy.sh/v86/bios/vgabios.bin",
-        },
-
-        // Reliable tiny OS image
-        cdrom: {
-            url: "https://copy.sh/v86/images/linux.iso",
-        },
-
-        memory_size: 128 * 1024 * 1024,
-        vga_memory_size: 8 * 1024 * 1024,
-        autostart: true,
-    });
-
-    emulator.add_listener("emulator-ready", () => {
-        document.getElementById("loading").style.display = "none";
-    });
-}
-
-document.addEventListener("DOMContentLoaded", start);
-</script>
+    <!-- THE EMULATOR IFRAME -->
+    <!-- This loads the official v86 TempleOS demo in an embedded frame -->
+    <div class="emulator-container">
+        <iframe 
+            src="https://copy.sh/v86/?profile=templeos" 
+            title="TempleOS Emulator"
+            allow="cross-origin-isolated"
+        ></iframe>
+    </div>
+    
+    <!-- FOOTER INSTRUCTIONS -->
+    <div class="footer">
+        <p>Click inside the emulator to capture keyboard input</p>
+        <p>Press ESC to release keyboard control</p>
+    </div>
 
 </body>
 </html>
