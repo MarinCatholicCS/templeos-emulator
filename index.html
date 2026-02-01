@@ -52,18 +52,10 @@
         button:hover {
             background: #0c0;
         }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
         #loading {
             color: #ff0;
             text-align: center;
             margin: 20px;
-        }
-        .warning {
-            color: #f90;
-            font-size: 12px;
         }
     </style>
 </head>
@@ -71,103 +63,58 @@
     <h1>✝ TempleOS Web Emulator ✝</h1>
     
     <div id="info">
-        <p>Running TempleOS in your browser via v86 emulator</p>
-        <p class="warning">Note: Initial load may take 1-2 minutes. Be patient!</p>
+        <p>Running TempleOS in your browser</p>
+        <p style="color: #f90; font-size: 12px;">Initial load may take 1-2 minutes</p>
     </div>
 
-    <div id="loading">⟳ Loading v86 emulator...</div>
+    <div id="loading">⟳ Loading TempleOS...</div>
     
     <div id="screen_container">
         <canvas id="screen"></canvas>
     </div>
     
     <div id="controls">
-        <button id="restart-btn" disabled>⟳ Restart</button>
-        <button id="stop-btn" disabled>⏹ Stop</button>
-        <button id="run-btn" disabled>▶ Run</button>
-        <button id="fullscreen-btn" disabled>⛶ Fullscreen</button>
+        <button onclick="if(emulator)emulator.restart()">⟳ Restart</button>
+        <button onclick="if(emulator)emulator.stop()">⏹ Stop</button>
+        <button onclick="if(emulator)emulator.run()">▶ Run</button>
     </div>
 
     <div id="info" style="margin-top: 20px; font-size: 12px;">
         <p>Click on the screen to capture keyboard input</p>
-        <p>Press ESC to release mouse/keyboard</p>
     </div>
 
+    <!-- Load v86 from local file -->
+    <script src="v86.js"></script>
+    
     <script>
         var emulator;
         var loadingDiv = document.getElementById("loading");
         
-        // Load v86 dynamically
-        var script = document.createElement('script');
-        script.src = 'https://copy.sh/v86/v86.js';
-        script.onload = function() {
-            loadingDiv.textContent = '⟳ v86 loaded! Starting TempleOS...';
-            initEmulator();
-        };
-        script.onerror = function() {
-            loadingDiv.textContent = '✖ Failed to load v86. Please refresh the page.';
-            loadingDiv.style.color = '#f00';
-        };
-        document.head.appendChild(script);
-        
-        function initEmulator() {
-            try {
-                emulator = new V86Starter({
-                    screen_container: document.getElementById("screen_container"),
-                    
-                    bios: {
-                        url: "https://copy.sh/v86/bios/seabios.bin",
-                    },
-                    vga_bios: {
-                        url: "https://copy.sh/v86/bios/vgabios.bin",
-                    },
-                    
-                    cdrom: {
-                        url: "https://copy.sh/v86/images/templeos.iso",
-                        async: true,
-                    },
-                    
-                    memory_size: 512 * 1024 * 1024,
-                    vga_memory_size: 8 * 1024 * 1024,
-                    boot_order: 0x123,
-                    autostart: true,
-                });
-
-                // Enable buttons
-                document.getElementById('restart-btn').disabled = false;
-                document.getElementById('stop-btn').disabled = false;
-                document.getElementById('run-btn').disabled = false;
-                document.getElementById('fullscreen-btn').disabled = false;
-
-                // Hide loading after a delay
-                setTimeout(function() {
-                    loadingDiv.style.display = "none";
-                }, 3000);
+        window.onload = function() {
+            emulator = new V86Starter({
+                wasm_path: "v86.wasm",
+                screen_container: document.getElementById("screen_container"),
                 
-            } catch(e) {
-                loadingDiv.textContent = '✖ Error: ' + e.message;
-                loadingDiv.style.color = '#f00';
-            }
-        }
+                bios: {
+                    url: "https://copy.sh/v86/bios/seabios.bin",
+                },
+                vga_bios: {
+                    url: "https://copy.sh/v86/bios/vgabios.bin",
+                },
+                
+                cdrom: {
+                    url: "https://copy.sh/v86/images/templeos.iso",
+                },
+                
+                memory_size: 256 * 1024 * 1024,
+                vga_memory_size: 8 * 1024 * 1024,
+                boot_order: 0x123,
+                autostart: true,
+            });
 
-        // Button handlers
-        document.getElementById('restart-btn').onclick = function() {
-            if (emulator) emulator.restart();
-        };
-        
-        document.getElementById('stop-btn').onclick = function() {
-            if (emulator) emulator.stop();
-        };
-        
-        document.getElementById('run-btn').onclick = function() {
-            if (emulator) emulator.run();
-        };
-        
-        document.getElementById('fullscreen-btn').onclick = function() {
-            var canvas = document.getElementById("screen");
-            if (canvas.requestFullscreen) {
-                canvas.requestFullscreen();
-            }
+            setTimeout(function() {
+                loadingDiv.style.display = "none";
+            }, 5000);
         };
     </script>
 </body>
