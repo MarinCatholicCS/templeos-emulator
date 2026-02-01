@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TempleOS in Browser</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #0f0;
+            text-align: center;
+            text-shadow: 0 0 10px #0f0;
+        }
+        #info {
+            color: #0f0;
+            text-align: center;
+            max-width: 600px;
+            margin: 10px;
+            line-height: 1.5;
+        }
+        #screen_container {
+            border: 2px solid #0f0;
+            margin: 20px 0;
+            box-shadow: 0 0 20px #0f0;
+        }
+        canvas {
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+        }
+        #controls {
+            color: #0f0;
+            margin: 10px;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0c0;
+        }
+        #loading {
+            color: #ff0;
+            text-align: center;
+            margin: 20px;
+        }
+        .warning {
+            color: #f90;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>✝ TempleOS Web Emulator ✝</h1>
+    
+    <div id="info">
+        <p>Running TempleOS in your browser via v86 emulator</p>
+        <p class="warning">Note: Initial load may take 1-2 minutes. Be patient!</p>
+    </div>
+
+    <div id="loading">⟳ Loading TempleOS ISO (this may take a minute)...</div>
+    
+    <div id="screen_container">
+        <canvas id="screen"></canvas>
+    </div>
+    
+    <div id="controls">
+        <button onclick="emulator.restart()">⟳ Restart</button>
+        <button onclick="emulator.stop()">⏹ Stop</button>
+        <button onclick="emulator.run()">▶ Run</button>
+        <button onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    </div>
+
+    <div id="info" style="margin-top: 20px; font-size: 12px;">
+        <p>Click on the screen to capture keyboard input</p>
+        <p>Press ESC to release mouse/keyboard</p>
+    </div>
+
+    <!-- Use v86 from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/v86@latest/build/libv86.js"></script>
+    
+    <script>
+        // Hide loading message once emulator starts
+        var loadingDiv = document.getElementById("loading");
+        
+        var emulator = new V86Starter({
+            screen_container: document.getElementById("screen_container"),
+            
+            // BIOS files from GitHub repo
+            bios: {
+                url: "bios/seabios.bin",
+            },
+            vga_bios: {
+                url: "bios/vgabios.bin",
+            },
+            
+            // TempleOS ISO from external source
+            // Using archive.org's hosted version
+            cdrom: {
+                url: "https://archive.org/download/temple-os-bootable-iso/TempleOS.ISO",
+                async: true,
+            },
+            
+            // Memory settings
+            memory_size: 512 * 1024 * 1024,  // 512MB
+            vga_memory_size: 8 * 1024 * 1024, // 8MB
+            
+            // Boot from CD-ROM
+            boot_order: 0x123,
+            
+            autostart: true,
+            
+            // Show loading progress
+            network_relay_url: "<disable>",
+        });
+
+        // Hide loading message when emulator is ready
+        emulator.add_listener("emulator-ready", function() {
+            loadingDiv.style.display = "none";
+        });
+
+        function toggleFullscreen() {
+            var canvas = document.getElementById("screen");
+            if (canvas.requestFullscreen) {
+                canvas.requestFullscreen();
+            } else if (canvas.webkitRequestFullscreen) {
+                canvas.webkitRequestFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>
