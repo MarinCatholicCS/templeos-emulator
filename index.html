@@ -52,6 +52,10 @@
         button:hover {
             background: #0c0;
         }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         #loading {
             color: #ff0;
             text-align: center;
@@ -71,17 +75,17 @@
         <p class="warning">Note: Initial load may take 1-2 minutes. Be patient!</p>
     </div>
 
-    <div id="loading">⟳ Loading TempleOS ISO (this may take a minute)...</div>
+    <div id="loading">⟳ Loading v86 emulator...</div>
     
     <div id="screen_container">
         <canvas id="screen"></canvas>
     </div>
     
     <div id="controls">
-        <button onclick="emulator.restart()">⟳ Restart</button>
-        <button onclick="emulator.stop()">⏹ Stop</button>
-        <button onclick="emulator.run()">▶ Run</button>
-        <button onclick="toggleFullscreen()">⛶ Fullscreen</button>
+        <button id="restart-btn" disabled>⟳ Restart</button>
+        <button id="stop-btn" disabled>⏹ Stop</button>
+        <button id="run-btn" disabled>▶ Run</button>
+        <button id="fullscreen-btn" disabled>⛶ Fullscreen</button>
     </div>
 
     <div id="info" style="margin-top: 20px; font-size: 12px;">
@@ -89,53 +93,82 @@
         <p>Press ESC to release mouse/keyboard</p>
     </div>
 
-    <!-- Use v86 from CDN -->
-    <script src="https://copy.sh/v86/v86.js"></script>
-    
     <script>
-        // Hide loading message once emulator starts
+        var emulator;
         var loadingDiv = document.getElementById("loading");
         
-        window.onload = function() {
-            var emulator = window.emulator = new V86Starter({
-                screen_container: document.getElementById("screen_container"),
-                
-                // BIOS files - using v86's hosted versions for reliability
-                bios: {
-                    url: "https://copy.sh/v86/bios/seabios.bin",
-                },
-                vga_bios: {
-                    url: "https://copy.sh/v86/bios/vgabios.bin",
-                },
-                
-                // TempleOS ISO
-                cdrom: {
-                    url: "https://copy.sh/v86/images/templeos.iso",
-                    async: true,
-                },
-                
-                // Memory settings
-                memory_size: 512 * 1024 * 1024,
-                vga_memory_size: 8 * 1024 * 1024,
-                
-                // Boot from CD-ROM
-                boot_order: 0x123,
-                
-                autostart: true,
-            });
-
-            // Hide loading message when ready
-            setTimeout(function() {
-                loadingDiv.style.display = "none";
-            }, 3000);
+        // Load v86 dynamically
+        var script = document.createElement('script');
+        script.src = 'https://copy.sh/v86/v86.js';
+        script.onload = function() {
+            loadingDiv.textContent = '⟳ v86 loaded! Starting TempleOS...';
+            initEmulator();
         };
+        script.onerror = function() {
+            loadingDiv.textContent = '✖ Failed to load v86. Please refresh the page.';
+            loadingDiv.style.color = '#f00';
+        };
+        document.head.appendChild(script);
+        
+        function initEmulator() {
+            try {
+                emulator = new V86Starter({
+                    screen_container: document.getElementById("screen_container"),
+                    
+                    bios: {
+                        url: "https://copy.sh/v86/bios/seabios.bin",
+                    },
+                    vga_bios: {
+                        url: "https://copy.sh/v86/bios/vgabios.bin",
+                    },
+                    
+                    cdrom: {
+                        url: "https://copy.sh/v86/images/templeos.iso",
+                        async: true,
+                    },
+                    
+                    memory_size: 512 * 1024 * 1024,
+                    vga_memory_size: 8 * 1024 * 1024,
+                    boot_order: 0x123,
+                    autostart: true,
+                });
 
-        function toggleFullscreen() {
+                // Enable buttons
+                document.getElementById('restart-btn').disabled = false;
+                document.getElementById('stop-btn').disabled = false;
+                document.getElementById('run-btn').disabled = false;
+                document.getElementById('fullscreen-btn').disabled = false;
+
+                // Hide loading after a delay
+                setTimeout(function() {
+                    loadingDiv.style.display = "none";
+                }, 3000);
+                
+            } catch(e) {
+                loadingDiv.textContent = '✖ Error: ' + e.message;
+                loadingDiv.style.color = '#f00';
+            }
+        }
+
+        // Button handlers
+        document.getElementById('restart-btn').onclick = function() {
+            if (emulator) emulator.restart();
+        };
+        
+        document.getElementById('stop-btn').onclick = function() {
+            if (emulator) emulator.stop();
+        };
+        
+        document.getElementById('run-btn').onclick = function() {
+            if (emulator) emulator.run();
+        };
+        
+        document.getElementById('fullscreen-btn').onclick = function() {
             var canvas = document.getElementById("screen");
             if (canvas.requestFullscreen) {
                 canvas.requestFullscreen();
             }
-        }
+        };
     </script>
 </body>
 </html>
