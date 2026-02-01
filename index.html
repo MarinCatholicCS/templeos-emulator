@@ -79,7 +79,7 @@
     </div>
 
     <!-- v86 -->
-    <script src="https://cdn.jsdelivr.net/npm/v86@0.4.1/build/libv86.js"></script>
+    <script src="v86.js"></script>
 
 
 
@@ -94,14 +94,14 @@
             }
 
             emulator = new V86Starter({
-                wasm_path: "https://cdn.jsdelivr.net/npm/v86@0.4.1/build/v86.wasm",
+                wasm_path: "v86.wasm",
                 screen_container: document.getElementById("screen_container"),
 
                 bios: {
-                    url: "https://unpkg.com/v86@latest/bios/seabios.bin",
+                    url: "bios/seabios.bin",
                 },
                 vga_bios: {
-                    url: "https://unpkg.com/v86@latest/bios/vgabios.bin",
+                    url: "vgabios.bin",
                 },
 
                 cdrom: {
