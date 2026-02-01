@@ -85,7 +85,7 @@
         let emulator;
         const loadingDiv = document.getElementById("loading");
 
-        function startEmulator() {
+        window.startEmulator = function() {
             if (typeof V86Starter === "undefined") {
                 setTimeout(startEmulator, 100);
                 return;
