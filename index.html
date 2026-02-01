@@ -1,125 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>TempleOS in Browser</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            background: #000;
-            font-family: monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            color: #0f0;
-            text-align: center;
-            text-shadow: 0 0 10px #0f0;
-        }
-        #info {
-            color: #0f0;
-            text-align: center;
-            max-width: 600px;
-            margin: 10px;
-            line-height: 1.5;
-        }
-        #screen_container {
-            border: 2px solid #0f0;
-            margin: 20px 0;
-            box-shadow: 0 0 20px #0f0;
-        }
-        #controls {
-            color: #0f0;
-            margin: 10px;
-        }
-        button {
-            background: #0f0;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            margin: 5px;
-            cursor: pointer;
-            font-family: monospace;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        button:hover {
-            background: #0c0;
-        }
-        #loading {
-            color: #ff0;
-            text-align: center;
-            margin: 20px;
-        }
-    </style>
+<meta charset="utf-8">
+<title>v86 Emulator</title>
+<style>
+body {
+    background:#000;
+    color:#0f0;
+    font-family: monospace;
+    text-align:center;
+}
+#screen_container {
+    border:2px solid #0f0;
+    margin-top:20px;
+    display:inline-block;
+}
+button {
+    margin:5px;
+    padding:10px;
+    font-family:monospace;
+}
+</style>
 </head>
 <body>
-    <h1>✝ TempleOS Web Emulator ✝</h1>
 
-    <div id="info">
-        <p>Running TempleOS in your browser</p>
-        <p style="color:#f90;font-size:12px;">Initial load may take 1–2 minutes</p>
-    </div>
+<h2>v86 Web Emulator</h2>
+<div id="loading">Loading…</div>
 
-    <div id="loading">⟳ Loading TempleOS…</div>
+<div id="screen_container"></div>
 
-    <!-- IMPORTANT: leave this DIV empty -->
-    <div id="screen_container"></div>
+<div>
+    <button onclick="emulator && emulator.restart()">Restart</button>
+    <button onclick="emulator && emulator.stop()">Stop</button>
+    <button onclick="emulator && emulator.run()">Run</button>
+</div>
 
-    <div id="controls">
-        <button onclick="emulator && emulator.restart()">⟳ Restart</button>
-        <button onclick="emulator && emulator.stop()">⏹ Stop</button>
-        <button onclick="emulator && emulator.run()">▶ Run</button>
-    </div>
+<!-- Official npm CDN build -->
+<script src="https://unpkg.com/v86/build/libv86.js"></script>
 
-    <div id="info" style="font-size:12px;">
-        <p>Click inside the screen to capture keyboard input</p>
-    </div>
+<script>
+let emulator;
 
-    <!-- v86 -->
-    <script src="libv86-debug.js"></script>
+function start() {
+    if (typeof V86Starter === "undefined") {
+        setTimeout(start, 100);
+        return;
+    }
 
+    emulator = new V86Starter({
+        wasm_path: "https://unpkg.com/v86/build/v86.wasm",
 
+        screen_container: document.getElementById("screen_container"),
 
-    <script>
-        let emulator;
-        const loadingDiv = document.getElementById("loading");
+        bios: {
+            url: "https://copy.sh/v86/bios/seabios.bin",
+        },
+        vga_bios: {
+            url: "https://copy.sh/v86/bios/vgabios.bin",
+        },
 
-        window.startEmulator = function() {
-            if (typeof V86Starter === "undefined") {
-                setTimeout(startEmulator, 100);
-                return;
-            }
+        // Reliable tiny OS image
+        cdrom: {
+            url: "https://copy.sh/v86/images/linux.iso",
+        },
 
-            emulator = new V86Starter({
-                wasm_path: "v86.wasm",
-                screen_container: document.getElementById("screen_container"),
+        memory_size: 128 * 1024 * 1024,
+        vga_memory_size: 8 * 1024 * 1024,
+        autostart: true,
+    });
 
-                bios: {
-                    url: "bios/seabios.bin",
-                },
-                vga_bios: {
-                    url: "bios/vgabios.bin",
-                },
+    emulator.add_listener("emulator-ready", () => {
+        document.getElementById("loading").style.display = "none";
+    });
+}
 
-                cdrom: {
-                    //url: "https://archive.org/download/TempleOS_ISO_Archive/TempleOSCDV5.03.ISO",
-                    url: "https://copy.sh/v86/images/windows101.img",
-                },
+document.addEventListener("DOMContentLoaded", start);
+</script>
 
-                memory_size: 256 * 1024 * 1024,
-                vga_memory_size: 8 * 1024 * 1024,
-                autostart: true,
-            });
-
-            setTimeout(() => {
-                loadingDiv.style.display = "none";
-            }, 4000);
-        }
-
-        document.addEventListener("DOMContentLoaded", startEmulator);
-    </script>
 </body>
 </html>
