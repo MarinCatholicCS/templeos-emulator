@@ -79,7 +79,8 @@
     </div>
 
     <!-- v86 -->
-    <script src="https://unpkg.com/v86@0.4.1/build/libv86.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/v86@0.4.1/build/libv86.js"></script>
+
 
 
     <script>
@@ -93,7 +94,7 @@
             }
 
             emulator = new V86Starter({
-                wwasm_path: "https://unpkg.com/v86@0.4.1/build/v86.wasm",
+                wasm_path: "https://cdn.jsdelivr.net/npm/v86@0.4.1/build/v86.wasm",
                 screen_container: document.getElementById("screen_container"),
 
                 bios: {
