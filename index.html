@@ -90,7 +90,16 @@
         var emulator;
         var loadingDiv = document.getElementById("loading");
         
-        window.onload = function() {
+        // Wait a moment to ensure v86.js is fully loaded
+        function startEmulator() {
+            if (typeof V86Starter === 'undefined') {
+                console.log("V86Starter not ready yet, waiting...");
+                setTimeout(startEmulator, 100);
+                return;
+            }
+            
+            console.log("Starting V86...");
+            
             emulator = new V86Starter({
                 wasm_path: "v86.wasm",
                 screen_container: document.getElementById("screen_container"),
@@ -115,7 +124,14 @@
             setTimeout(function() {
                 loadingDiv.style.display = "none";
             }, 5000);
-        };
+        }
+        
+        // Start when page is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startEmulator);
+        } else {
+            startEmulator();
+        }
     </script>
 </body>
 </html>
